@@ -6,12 +6,11 @@ ENV SHELL=/bin/sh
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
-# Install pnpm and NestJS CLI
+# Install pnpm
 RUN apk add --no-cache bash && \
     corepack enable && \
     corepack prepare pnpm@latest --activate && \
-    SHELL=/bin/bash pnpm setup && \
-    pnpm install -g @nestjs/cli
+    SHELL=/bin/bash pnpm setup
 
 WORKDIR /app
 
@@ -30,17 +29,18 @@ RUN pnpm run build
 # Runner stage
 FROM node:slim as runner
 
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
 # Set shell and environment variables
 ENV SHELL=/bin/sh
 ENV PNPM_HOME="/root/.local/share/pnpm"
 ENV PATH="${PNPM_HOME}:${PATH}"
 
-# Install pnpm and NestJS CLI
+# Install pnpm
 RUN apk add --no-cache bash && \
     corepack enable && \
     corepack prepare pnpm@latest --activate && \
-    SHELL=/bin/bash pnpm setup && \
-    pnpm install -g @nestjs/cli
+    SHELL=/bin/bash pnpm setup
 
 WORKDIR /app
 
@@ -54,8 +54,12 @@ RUN HUSKY=0 pnpm install --prod --frozen-lockfile --ignore-scripts
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src/config ./src/config
 
+RUN chown -R appuser:appgroup /app
+
+USER appuser
+
 # Expose port
 EXPOSE 3000
 
 # Start command
-CMD ["pnpm", "start:prod"]
+CMD ["node", "dist/main"]
