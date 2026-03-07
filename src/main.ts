@@ -4,15 +4,20 @@ import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { SeederService } from 'src/modules/seeder/seeder.service';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const apiPrefix = '/api/v1';
+  const apiPrefix = configService.get<string>('apiPrefix', 'api');
 
   app.enableCors();
   app.use(helmet());
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: '1',
+  });
   app.setGlobalPrefix(apiPrefix, { exclude: ['/'] });
 
   const config = new DocumentBuilder()
@@ -31,8 +36,10 @@ async function bootstrap() {
 
   SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
 
-  await app.get(SeederService).seed();
+  if (configService.get<string>('nodeEnv') !== 'production') {
+    await app.get(SeederService).seed();
+  }
 
-  await app.listen(process.env.PORT || 3000);
+  await app.listen(configService.get<number>('port', 3000));
 }
-bootstrap();
+void bootstrap();
