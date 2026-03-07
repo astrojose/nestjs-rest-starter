@@ -1,5 +1,4 @@
-# Build stage
-FROM node:22-alpine as builder
+FROM node:22-alpine AS builder
 
 # Set shell and environment variables
 ENV SHELL=/bin/sh
@@ -17,8 +16,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies with husky
-RUN pnpm install --no-frozen-lockfile
+# Install dependencies
+RUN HUSKY=0 pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -26,8 +25,7 @@ COPY . .
 # Build the application
 RUN pnpm run build
 
-# Runner stage
-FROM node:slim as runner
+FROM node:22-alpine AS runner
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
@@ -58,8 +56,8 @@ RUN chown -R appuser:appgroup /app
 
 USER appuser
 
-# Expose port
+ENV NODE_ENV=production
+
 EXPOSE 3000
 
-# Start command
 CMD ["node", "dist/main"]
