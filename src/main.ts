@@ -37,6 +37,25 @@ async function bootstrap() {
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
+
+    const httpMethods = [
+      'get',
+      'post',
+      'put',
+      'patch',
+      'delete',
+      'options',
+      'head',
+      'trace',
+    ] as const;
+    for (const pathItem of Object.values(document.paths ?? {})) {
+      for (const method of httpMethods) {
+        if (pathItem[method] && !pathItem[method].summary) {
+          delete pathItem[method];
+        }
+      }
+    }
+
     SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
       swaggerOptions: { persistAuthorization: true },
     });
