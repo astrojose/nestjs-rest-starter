@@ -26,9 +26,10 @@ export class User extends BasicEntity {
 
   @ManyToOne(() => Role, role => role.users, {
     onDelete: 'SET NULL',
+    nullable: true,
   })
   @JoinColumn({ name: 'roleId' })
-  role: Role;
+  role: Role | null;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -49,6 +50,10 @@ export class User extends BasicEntity {
 
   async comparePassword(candidatePassword: string): Promise<boolean> {
     const [salt, storedHash] = this.password.split(':');
+    if (!salt || !storedHash) {
+      return false;
+    }
+
     return new Promise((resolve, reject) => {
       crypto.scrypt(candidatePassword, salt, 64, (err, derivedKey) => {
         if (err) reject(err);

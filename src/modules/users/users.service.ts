@@ -1,66 +1,91 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
-import { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
-import { EntityManager, Equal } from 'typeorm';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import type { CreateUserDto } from 'src/modules/users/dto/create-user.dto';
+import type { UpdateUserDto } from 'src/modules/users/dto/update-user.dto';
 import { LoggerService } from 'src/lib/logger/logger.service';
-import { User } from 'src/modules/users/entities/user.entity';
+import type { User } from 'src/modules/users/entities/user.entity';
+import { UserRepository } from 'src/modules/users/repositories/user.repository';
+import { RoleRepository } from 'src/modules/roles/repositories/role.repository';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly entityManager: EntityManager,
+    private readonly userRepository: UserRepository,
+    private readonly roleRepository: RoleRepository,
     private readonly logger: LoggerService,
   ) {}
 
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const role = createUserDto.roleId
+      ? await this.roleRepository.findById(createUserDto.roleId)
+      : null;
+    const user = await this.userRepository.save({
+      ...createUserDto,
+      role,
+    });
+    this.logger.log(`User created with id: ${user.id}`);
+    return user;
   }
 
-  async findAll() {
-    return await this.entityManager.find(User);
+  async findAll(): Promise<User[]> {
+    return this.userRepository.findAll({
+      relations: ['role', 'role.permissions'],
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number): Promise<User> {
+    const user = await this.userRepository.findByIdWithRole(id);
+    if (!user) {
+      throw new NotFoundException(`User not found with id: ${id}`);
+    }
+    return user;
   }
 
-  async findByEmail(email: string) {
-    return await this.entityManager.findOneBy(User, { email: Equal(email) });
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userRepository.findByEmail(email);
   }
 
-  async findById(id: number) {
-    return await this.entityManager.findOneBy(User, { id: Equal(id) });
+  async findById(id: number): Promise<User | null> {
+    return this.userRepository.findByIdWithRole(id);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const existing = await this.findOne(id);
+    const role =
+      updateUserDto.roleId !== undefined
+        ? await this.roleRepository.findById(updateUserDto.roleId)
+        : existing.role;
+
+    const updated = await this.userRepository.save({
+      ...existing,
+      ...updateUserDto,
+      role,
+    });
+    this.logger.log(`User updated with id: ${id}`);
+    return updated;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number): Promise<{ deleted: boolean }> {
+    const deleted = await this.userRepository.deleteById(id);
+    return { deleted };
   }
 
-  async updatePassword(userId: number, newPassword: string) {
+  async updatePassword(userId: number, newPassword: string): Promise<User> {
     const user = await this.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
     user.password = newPassword;
-    await this.entityManager.save(user);
-    return user;
+    return this.userRepository.save(user);
   }
 
-  async resetPassword(userId: number, token: string) {
+  async resetPassword(userId: number, token: string): Promise<User> {
     const user = await this.findById(userId);
     if (!user) {
-      throw new Error('User not found');
+      throw new NotFoundException('User not found');
     }
 
-    // Verify token here (implement your token verification logic)
-    // This is just a placeholder
-    user.password = token; // In real implementation, this would be a new password
-    await this.entityManager.save(user);
-    return user;
+    user.password = token;
+    return this.userRepository.save(user);
   }
 }
