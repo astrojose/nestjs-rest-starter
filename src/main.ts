@@ -12,7 +12,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>('apiPrefix', 'api');
 
-  app.enableCors();
+  const isProduction = configService.get<string>('nodeEnv') === 'production';
+
+  app.enableCors({ origin: configService.get<string>('corsOrigin', '*') });
   app.use(helmet());
   app.enableVersioning({
     type: VersioningType.URI,
@@ -20,23 +22,25 @@ async function bootstrap() {
   });
   app.setGlobalPrefix(apiPrefix, { exclude: ['/'] });
 
-  const config = new DocumentBuilder()
-    .setTitle(configService.get<string>('app.name') || 'Default App Name')
-    .setDescription(
-      configService.get<string>('app.description') || 'Default App Description',
-    )
-    .setVersion('1.0')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'JWT',
-    )
-    .build();
+  if (!isProduction) {
+    const config = new DocumentBuilder()
+      .setTitle(configService.get<string>('app.name') || 'Default App Name')
+      .setDescription(
+        configService.get<string>('app.description') ||
+          'Default App Description',
+      )
+      .setVersion('1.0')
+      .addBearerAuth(
+        { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+        'JWT',
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, config);
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup(`${apiPrefix}/docs`, app, document, {
+      swaggerOptions: { persistAuthorization: true },
+    });
 
-  SwaggerModule.setup(`${apiPrefix}/docs`, app, document);
-
-  if (configService.get<string>('nodeEnv') !== 'production') {
     await app.get(SeederService).seed();
   }
 
