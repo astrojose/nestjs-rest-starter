@@ -4,18 +4,19 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { UsersService } from 'src/modules/users/users.service';
-import { LoginDto } from '../dto/login.dto';
-import { ForgotPasswordDto } from '../dto/forgot-password.dto';
-import { ChangePasswordDto } from '../dto/change-password.dto';
-import { Public } from 'src/modules/auth/decorator/public.decorator';
+import type { LoginDto } from '../dto/login.dto';
+import type { ForgotPasswordDto } from '../dto/forgot-password.dto';
+import type { ChangePasswordDto } from '../dto/change-password.dto';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/modules/users/entities/user.entity';
+import type { User } from 'src/modules/users/entities/user.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User> {
@@ -35,7 +36,7 @@ export class AuthService {
     const resetToken = this.jwtService.sign(
       { userId: user.id },
       {
-        secret: process.env.JWT_RESET_SECRET || 'reset-secret',
+        secret: this.configService.getOrThrow<string>('jwtResetSecret'),
         expiresIn: '1h',
       },
     );
@@ -47,8 +48,8 @@ export class AuthService {
 
   async resetPassword(token: string, password: string) {
     try {
-      const decoded = this.jwtService.verify(token, {
-        secret: process.env.JWT_RESET_SECRET || 'reset-secret',
+      const decoded = this.jwtService.verify<{ userId: number }>(token, {
+        secret: this.configService.getOrThrow<string>('jwtResetSecret'),
       });
 
       const user = await this.usersService.findById(decoded.userId);
@@ -81,7 +82,6 @@ export class AuthService {
     return { message: 'Password successfully changed' };
   }
 
-  @Public()
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
     const user = await this.validateUser(email, password);
