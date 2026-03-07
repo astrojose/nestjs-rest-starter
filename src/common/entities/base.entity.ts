@@ -11,20 +11,18 @@ export abstract class BasicEntity {
   @CreateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
+    name: 'created_at',
   })
   createdAt: Date;
 
   @UpdateDateColumn({
     type: 'timestamptz',
     default: () => 'CURRENT_TIMESTAMP',
+    name: 'updated_at',
   })
   updatedAt: Date;
 
-  update<T>(data: T): this & T {
+  mergeData<T>(data: T): this & T {
     return Object.assign(this as any, data);
-  }
-
-  toDTO<T>(): this & T {
-    return this as any;
   }
 }

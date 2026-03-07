@@ -1,11 +1,10 @@
-import {
-  Injectable,
+import type {
   NestInterceptor,
   ExecutionContext,
   CallHandler,
-  Logger,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
+import { Injectable } from '@nestjs/common';
+import type { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 export interface Response<T> {
@@ -19,21 +18,32 @@ export interface Response<T> {
     page: number;
     pageSize: number;
   };
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown> | undefined;
+}
+
+interface PaginatedPayload<T> {
+  data: T;
+  pagination: {
+    total: number;
+    page: number;
+    pageSize: number;
+  };
+  meta?: Record<string, unknown> | undefined;
 }
 
 @Injectable()
 export class ResponseTransformInterceptor<T>
   implements NestInterceptor<T, Response<T>>
 {
-  private readonly logger = new Logger(ResponseTransformInterceptor.name);
-
   intercept(
     context: ExecutionContext,
     next: CallHandler,
   ): Observable<Response<T>> {
-    const request = context.switchToHttp().getRequest();
-    const response = context.switchToHttp().getResponse();
+    const request = context.switchToHttp().getRequest<{ url: string }>();
+    const response = context.switchToHttp().getResponse<{
+      statusCode: number;
+      req: { url: string };
+    }>();
     const excludedRoutes = ['/'];
 
     if (excludedRoutes.includes(response.req.url)) {
@@ -41,7 +51,7 @@ export class ResponseTransformInterceptor<T>
     }
 
     return next.handle().pipe(
-      map(data => {
+      map((data): Response<T> => {
         const createMeta = () => ({
           status: response.statusCode,
           message: 'Success',
@@ -49,21 +59,27 @@ export class ResponseTransformInterceptor<T>
           path: request.url,
         });
 
-        const isPaginated = data.pagination !== undefined;
+        const dataWithMeta = data as T & { meta?: Record<string, unknown> };
+        const isPaginated = Boolean(
+          data &&
+            typeof data === 'object' &&
+            'pagination' in (data as Record<string, unknown>),
+        );
 
         if (isPaginated) {
+          const paginatedData = data as PaginatedPayload<T>;
           return {
             ...createMeta(),
-            data: data.data as T,
-            pagination: data.pagination,
-            meta: data.meta || {},
+            data: paginatedData.data,
+            pagination: paginatedData.pagination,
+            meta: paginatedData.meta ?? {},
           };
         }
 
         return {
           ...createMeta(),
           data: data as T,
-          meta: data.meta || {},
+          meta: dataWithMeta.meta ?? {},
         };
       }),
     );

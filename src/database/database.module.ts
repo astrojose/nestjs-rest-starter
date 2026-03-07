@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import type { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -9,14 +9,14 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService): TypeOrmModuleOptions => ({
         type: 'postgres',
-        host: configService.get<string>('database.host'),
-        port: configService.get<number>('database.port'),
-        username: configService.get<string>('database.username'),
-        password: configService.get<string>('database.password'),
-        database: configService.get<string>('database.database'),
-        entities: ['dist/**/*.entity.{ts,js}'],
-        synchronize: configService.get<boolean>('database.sync'),
-        logging: configService.get<boolean>('database.logging'),
+        host: configService.get<string>('database.host', 'localhost'),
+        port: configService.get<number>('database.port', 5432),
+        username: configService.get<string>('database.username', 'postgres'),
+        password: configService.get<string>('database.password', ''),
+        database: configService.get<string>('database.database', 'postgres'),
+        autoLoadEntities: true,
+        synchronize: configService.get<boolean>('database.sync', false),
+        logging: configService.get<boolean>('database.logging', false),
       }),
       inject: [ConfigService],
     }),
