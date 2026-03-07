@@ -11,6 +11,7 @@ export const validate = (config: Record<string, unknown>) => {
     JWT_SECRET: Joi.string().required(),
     JWT_RESET_SECRET: Joi.string().optional(),
     API_PREFIX: Joi.string().default('api'),
+    CORS_ORIGIN: Joi.string().default('*'),
     DB_TYPE: Joi.string().required(),
     DB_HOST: Joi.string().required(),
     DB_PORT: Joi.number().default(5432),

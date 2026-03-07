@@ -4,6 +4,7 @@ export default () => ({
   jwtSecret: process.env.JWT_SECRET,
   jwtResetSecret: process.env.JWT_RESET_SECRET ?? process.env.JWT_SECRET,
   apiPrefix: process.env.API_PREFIX || 'api',
+  corsOrigin: process.env.CORS_ORIGIN || '*',
   app: {
     name: process.env.APP_NAME || 'API',
     description: process.env.APP_DESCRIPTION || 'API Description',
