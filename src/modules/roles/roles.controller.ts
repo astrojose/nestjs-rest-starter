@@ -42,19 +42,21 @@ export class RolesController {
   @ApiOperation({ summary: 'Get a role by id' })
   @ApiResponse({ status: 200, type: RoleResponseDto })
   @ApiResponse({ status: 404, description: 'Role not found' })
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<RoleResponseDto> {
-    return this.rolesService.findOne(id);
+  @Get(':roleId')
+  findOne(
+    @Param('roleId', ParseIntPipe) roleId: number,
+  ): Promise<RoleResponseDto> {
+    return this.rolesService.findOne(roleId);
   }
 
   @ApiOperation({ summary: 'Update a role by id' })
   @ApiResponse({ status: 200, type: RoleResponseDto })
   @ApiResponse({ status: 404, description: 'Role not found' })
-  @Patch(':id')
+  @Patch(':roleId')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('roleId', ParseIntPipe) roleId: number,
     @Body() updateRoleDto: UpdateRoleDto,
   ): Promise<RoleResponseDto> {
-    return this.rolesService.update(id, updateRoleDto);
+    return this.rolesService.update(roleId, updateRoleDto);
   }
 }

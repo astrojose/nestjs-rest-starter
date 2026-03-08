@@ -43,27 +43,31 @@ export class UsersController {
   @ApiOperation({ summary: 'Get a user by id' })
   @ApiResponse({ status: 200, type: UserResponseDto })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<UserResponseDto> {
-    return this.usersService.findOne(id);
+  @Get(':userId')
+  findOne(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<UserResponseDto> {
+    return this.usersService.findOne(userId);
   }
 
   @ApiOperation({ summary: 'Update a user by id' })
   @ApiResponse({ status: 200, type: UserResponseDto })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @Patch(':id')
+  @Patch(':userId')
   update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserResponseDto> {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update(userId, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Delete a user by id' })
   @ApiResponse({ status: 200, description: 'User deleted' })
   @ApiResponse({ status: 404, description: 'User not found' })
-  @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number): Promise<{ deleted: boolean }> {
-    return this.usersService.remove(id);
+  @Delete(':userId')
+  remove(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<{ deleted: boolean }> {
+    return this.usersService.remove(userId);
   }
 }
