@@ -1,0 +1,5 @@
+{
+  "name": "nestjs-rest-starter-schematics",
+  "version": "0.0.1",
+  "schematics": "./collection.json"
+}

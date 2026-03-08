@@ -57,6 +57,8 @@ Run `make help` for the full list.
 
 ```bash
 make new-module name=product
+# or directly:
+nest g resource product --collection ./schematics
 ```
 
 Generates a fully structured module under `src/modules/product/` with:
@@ -77,6 +79,8 @@ import { ProductModule } from './modules/product/product.module';
   imports: [..., ProductModule],
 })
 ```
+
+> The schematic compiles automatically when you run `make new-module`. You can also run it independently with `pnpm run build:schematics`.
 
 ## Docker
 

@@ -1,0 +1,10 @@
+{
+  "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
+  "schematics": {
+    "resource": {
+      "description": "Generate a domain resource following project conventions (entity, repository, service, controller, DTOs, response DTO)",
+      "factory": "./dist/resource/index#resource",
+      "schema": "./src/resource/schema.json"
+    }
+  }
+}
