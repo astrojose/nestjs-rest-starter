@@ -12,13 +12,13 @@ import * as crypto from 'crypto';
 
 @Entity('users')
 export class User extends BasicEntity {
-  @Column({ length: 100 })
+  @Column({ length: 100, name: 'full_name' })
   fullName: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, name: 'phone_number' })
   phoneNumber: string;
 
-  @Column({ length: 100 })
+  @Column({ length: 100, name: 'email', unique: true })
   email: string;
 
   @Column({ length: 255 })
@@ -28,7 +28,7 @@ export class User extends BasicEntity {
     onDelete: 'SET NULL',
     nullable: true,
   })
-  @JoinColumn({ name: 'roleId' })
+  @JoinColumn({ name: 'role_id' })
   role: Role | null;
 
   @BeforeInsert()
