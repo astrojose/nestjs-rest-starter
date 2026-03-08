@@ -18,20 +18,72 @@ A production-ready NestJS REST API starter with batteries included.
 
 ## Getting started
 
-```bash
-cp .env.example .env
-# fill in your values in .env
+### Option A — Initialize from the starter (recommended)
 
+```bash
 pnpm install
-pnpm start:dev
+make init        # interactive: sets project name, description, .env, optional git reset
+make docker-up   # start Postgres
+make dev         # start dev server with hot reload
+```
+
+### Option B — Manual setup
+
+```bash
+cp .env.example .env   # then fill in your values
+pnpm install
+pnpm run start:dev
 ```
 
 Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 
+## Common commands
+
+| Command | Description |
+|---|---|
+| `make dev` | Start dev server with hot reload |
+| `make build` | Build for production |
+| `make test` | Run unit tests |
+| `make test-cov` | Run unit tests with coverage |
+| `make lint` | Lint and auto-fix |
+| `make format` | Format with Prettier |
+| `make docker-up` | Start Docker services |
+| `make docker-down` | Stop Docker services |
+| `make new-module name=<name>` | Scaffold a new domain module |
+
+Run `make help` for the full list.
+
+## Scaffolding a module
+
+```bash
+make new-module name=product
+```
+
+Generates a fully structured module under `src/modules/product/` with:
+- Entity extending `BasicEntity`
+- `CreateDto` / `UpdateDto` with class-validator
+- `ResponseDto` with constructor pattern
+- Repository extending `BaseRepository`
+- Service with CRUD operations
+- Controller with `@ApiOperation` / `@ApiResponse` decorators
+- Module wired with TypeORM and DI
+
+Then register it in `src/app.module.ts`:
+
+```typescript
+import { ProductModule } from './modules/product/product.module';
+
+@Module({
+  imports: [..., ProductModule],
+})
+```
+
 ## Docker
 
 ```bash
-docker compose up -d --build
+make docker-build   # build images and start
+make docker-up      # start existing containers
+make docker-down    # stop containers
 ```
 
 ## Default seed credentials
