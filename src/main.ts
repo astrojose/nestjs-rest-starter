@@ -4,10 +4,12 @@ import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { SeederService } from 'src/modules/seeder/seeder.service';
-import { VersioningType } from '@nestjs/common';
+import { ConsoleLogger, VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({ json: true }),
+  });
 
   const configService = app.get(ConfigService);
   const apiPrefix = configService.get<string>('apiPrefix', 'api');
