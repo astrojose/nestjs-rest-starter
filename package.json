@@ -1,10 +1,10 @@
 {
-  "name": "nestjs-rest-api",
+  "name": "nestjs-rest-starter",
   "version": "0.0.1",
-  "description": "",
+  "description": "A production-ready NestJS REST API starter with auth, roles, permissions, Swagger, and Docker.",
   "author": "",
-  "private": true,
-  "license": "UNLICENSED",
+  "private": false,
+  "license": "MIT",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",

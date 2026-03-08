@@ -70,15 +70,15 @@ export class SeederService {
       {
         fullName: 'Admin User',
         phoneNumber: '1234567890',
-        email: 'admin@ipfsoftwares.com',
-        password: 'admin@ipfsoftwares',
+        email: 'admin@example.com',
+        password: 'Admin@1234!',
         role: roleMap['Admin'] ?? null,
       },
       {
         fullName: 'Manager User',
         phoneNumber: '0987654321',
-        email: 'manager@ipfsoftwares.com',
-        password: 'manager@ipfsoftwares',
+        email: 'manager@example.com',
+        password: 'Manager@1234!',
         role: roleMap['Manager'] ?? null,
       },
     ];

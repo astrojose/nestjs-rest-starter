@@ -1,60 +1,72 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS REST Starter
 
+A production-ready NestJS REST API starter with batteries included.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
+## Features
 
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Auth** — JWT login, local strategy, password change & reset flows
+- **Roles & Permissions** — role-based access control with a flexible permission system
+- **Swagger** — auto-generated docs at `/api/docs` (non-production only); only endpoints decorated with `@ApiOperation` are exposed
+- **Response DTOs** — all endpoint responses use typed constructor-pattern DTOs
+- **Global validation** — `class-validator` pipe applied globally
+- **Global exception filter** — consistent JSON error responses
+- **Response interceptor** — uniform response envelope with status, timestamp, and path
+- **Seeder** — seeds default Admin/Manager roles and users on startup (non-production)
+- **Docker** — multi-stage Dockerfile + docker-compose with Postgres
+- **JSON logging** — structured JSON logs via NestJS `ConsoleLogger`
+- **Security** — Helmet, CORS with configurable origin, Swagger disabled in production
 
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
-```bash
-$ pnpm install
-```
-
-## Running the app
+## Getting started
 
 ```bash
-# development
-$ pnpm run start
+cp .env.example .env
+# fill in your values in .env
 
-# watch mode
-$ pnpm run start:dev
-
-# production mode
-$ pnpm run start:prod
+pnpm install
+pnpm start:dev
 ```
 
-## Test
+Swagger UI: [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
+
+## Docker
 
 ```bash
-# unit tests
-$ pnpm run test
-
-# e2e tests
-$ pnpm run test:e2e
-
-# test coverage
-$ pnpm run test:cov
+docker compose up -d --build
 ```
 
-## Support
+## Default seed credentials
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+| Role    | Email                  | Password       |
+|---------|------------------------|----------------|
+| Admin   | admin@example.com      | Admin@1234!    |
+| Manager | manager@example.com    | Manager@1234!  |
 
-## Stay in touch
+> Change these in `src/modules/seeder/seeder.service.ts` or via your own seeding strategy before deploying.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Environment variables
+
+See `.env.example` for all required variables.
+
+| Variable          | Description                          | Default       |
+|-------------------|--------------------------------------|---------------|
+| `NODE_ENV`        | Environment                          | `development` |
+| `PORT`            | HTTP port                            | `3000`        |
+| `APP_NAME`        | App name shown in Swagger            | —             |
+| `APP_DESCRIPTION` | App description shown in Swagger     | —             |
+| `JWT_SECRET`      | Secret for access tokens             | —             |
+| `JWT_RESET_SECRET`| Secret for password reset tokens     | falls back to `JWT_SECRET` |
+| `API_PREFIX`      | Global route prefix                  | `api`         |
+| `CORS_ORIGIN`     | Allowed CORS origin                  | `*`           |
+| `DB_TYPE`         | Database type                        | `postgres`    |
+| `DB_HOST`         | Database host                        | —             |
+| `DB_PORT`         | Database port                        | `5432`        |
+| `DB_USERNAME`     | Database user                        | —             |
+| `DB_PASSWORD`     | Database password                    | —             |
+| `DB_DATABASE`     | Database name                        | —             |
+| `DB_SYNC`         | Auto-sync schema (dev only)          | `false`       |
+| `DB_LOGGING`      | Log SQL queries                      | `false`       |
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+MIT
+
