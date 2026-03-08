@@ -5,6 +5,7 @@ import { LoggerService } from 'src/lib/logger/logger.service';
 import type { User } from 'src/modules/users/entities/user.entity';
 import { UserRepository } from 'src/modules/users/repositories/user.repository';
 import { RoleRepository } from 'src/modules/roles/repositories/role.repository';
+import { UserResponseDto } from 'src/modules/users/dto/responses/user.response.dto';
 
 @Injectable()
 export class UsersService {
@@ -14,7 +15,7 @@ export class UsersService {
     private readonly logger: LoggerService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     const role = createUserDto.roleId
       ? await this.roleRepository.findById(createUserDto.roleId)
       : null;
@@ -23,21 +24,22 @@ export class UsersService {
       role,
     });
     this.logger.log(`User created with id: ${user.id}`);
-    return user;
+    return new UserResponseDto(user);
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.findAll({
+  async findAll(): Promise<UserResponseDto[]> {
+    const users = await this.userRepository.findAll({
       relations: ['role', 'role.permissions'],
     });
+    return users.map(u => new UserResponseDto(u));
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(id: number): Promise<UserResponseDto> {
     const user = await this.userRepository.findByIdWithRole(id);
     if (!user) {
       throw new NotFoundException(`User not found with id: ${id}`);
     }
-    return user;
+    return new UserResponseDto(user);
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -48,8 +50,14 @@ export class UsersService {
     return this.userRepository.findByIdWithRole(id);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const existing = await this.findOne(id);
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    const existing = await this.userRepository.findByIdWithRole(id);
+    if (!existing) {
+      throw new NotFoundException(`User not found with id: ${id}`);
+    }
     const role =
       updateUserDto.roleId !== undefined
         ? await this.roleRepository.findById(updateUserDto.roleId)
@@ -61,7 +69,7 @@ export class UsersService {
       role,
     });
     this.logger.log(`User updated with id: ${id}`);
-    return updated;
+    return new UserResponseDto(updated);
   }
 
   async remove(id: number): Promise<{ deleted: boolean }> {

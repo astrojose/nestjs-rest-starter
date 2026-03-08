@@ -8,6 +8,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Public } from 'src/modules/auth/decorator/public.decorator';
+import { LoginResponseDto } from 'src/modules/auth/dto/responses/login.response.dto';
 
 @ApiTags('Auth')
 @ApiBearerAuth('JWT')
@@ -17,10 +18,10 @@ export class AuthController {
 
   @Public()
   @ApiOperation({ summary: 'Authenticate user and return JWT' })
-  @ApiResponse({ status: 201, description: 'Login successful' })
+  @ApiResponse({ status: 201, type: LoginResponseDto })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
+  async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
   }
 }

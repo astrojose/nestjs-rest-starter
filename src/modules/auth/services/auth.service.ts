@@ -10,6 +10,7 @@ import type { ChangePasswordDto } from '../dto/change-password.dto';
 import { JwtService } from '@nestjs/jwt';
 import type { User } from 'src/modules/users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { LoginResponseDto } from 'src/modules/auth/dto/responses/login.response.dto';
 
 @Injectable()
 export class AuthService {
@@ -82,13 +83,11 @@ export class AuthService {
     return { message: 'Password successfully changed' };
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const { email, password } = loginDto;
     const user = await this.validateUser(email, password);
 
     const payload = { email: user.email, sub: user.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-    };
+    return new LoginResponseDto(this.jwtService.sign(payload));
   }
 }
