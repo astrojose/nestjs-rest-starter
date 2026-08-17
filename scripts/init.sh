@@ -37,6 +37,16 @@ node -e "
   fs.writeFileSync('README.md', readme);
 " "$PROJECT_NAME" "$PROJECT_DESCRIPTION"
 
+if [ -f compose.yaml ]; then
+  echo -e "${GREEN}→ Updating compose.yaml container names${NC}"
+  node -e "
+    const fs = require('fs');
+    let compose = fs.readFileSync('compose.yaml', 'utf8');
+    compose = compose.replace(/nestjs-rest-starter/g, process.argv[1]);
+    fs.writeFileSync('compose.yaml', compose);
+  " "$PROJECT_NAME"
+fi
+
 if [ ! -f .env ]; then
   echo -e "${GREEN}→ Creating .env from .env.example${NC}"
   cp .env.example .env
@@ -73,5 +83,5 @@ fi
 echo -e "\n${GREEN}Done! Project '${PROJECT_NAME}' is ready.${NC}\n"
 echo "Next steps:"
 echo "  1. Edit .env with your configuration"
-echo "  2. Run 'make docker-up' to start the database"
+echo "  2. Run 'make docker-up' to start the database & Redis"
 echo "  3. Run 'make dev' to start the development server"
