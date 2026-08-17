@@ -19,4 +19,10 @@ export default () => ({
     sync: process.env.DB_SYNC === 'true',
     logging: process.env.DB_LOGGING === 'true',
   },
+  redis: {
+    enabled: process.env.REDIS_ENABLED !== 'false',
+    host: process.env.REDIS_HOST || 'localhost',
+    port: parseInt(process.env.REDIS_PORT ?? '6379', 10),
+    password: process.env.REDIS_PASSWORD || undefined,
+  },
 });

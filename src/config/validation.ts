@@ -20,6 +20,10 @@ export const validate = (config: Record<string, unknown>) => {
     DB_DATABASE: Joi.string().required(),
     DB_SYNC: Joi.string().valid('true', 'false').default('false'),
     DB_LOGGING: Joi.string().valid('true', 'false').default('false'),
+    REDIS_ENABLED: Joi.string().valid('true', 'false').default('true'),
+    REDIS_HOST: Joi.string().default('localhost'),
+    REDIS_PORT: Joi.number().default(6379),
+    REDIS_PASSWORD: Joi.string().allow('').optional(),
   });
 
   const { error, value } = schema.validate(config, {
