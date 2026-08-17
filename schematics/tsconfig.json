@@ -10,5 +10,6 @@
     "skipLibCheck": true,
     "strict": false
   },
-  "exclude": ["node_modules", "dist", "src/resource/files/**"]
+  "include": ["src/resource/index.ts"],
+  "exclude": ["node_modules", "dist", "src/resource/files/**/*", "src/resource/files"]
 }

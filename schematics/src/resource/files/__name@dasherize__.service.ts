@@ -1,4 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResult } from 'src/common/utils/pagination';
 import { <%= classify(name) %>Repository } from './repositories/<%= dasherize(name) %>.repository';
 import { Create<%= classify(name) %>Dto } from './dto/create-<%= dasherize(name) %>.dto';
 import { Update<%= classify(name) %>Dto } from './dto/update-<%= dasherize(name) %>.dto';
@@ -16,6 +18,12 @@ export class <%= classify(name) %>Service {
     return this.<%= camelize(name) %>Repository.findAll();
   }
 
+  async findAllPaginated(
+    query: PaginationQueryDto,
+  ): Promise<PaginatedResult<<%= classify(name) %>>> {
+    return this.<%= camelize(name) %>Repository.findPaginated(query);
+  }
+
   async findOne(id: number): Promise<<%= classify(name) %>> {
     const entity = await this.<%= camelize(name) %>Repository.findById(id);
     if (!entity) throw new NotFoundException('<%= classify(name) %> not found');
@@ -28,7 +36,7 @@ export class <%= classify(name) %>Service {
   }
 
   async remove(id: number): Promise<void> {
-    const deleted = await this.<%= camelize(name) %>Repository.deleteById(id);
+    const deleted = await this.<%= camelize(name) %>Repository.softDeleteById(id);
     if (!deleted) throw new NotFoundException('<%= classify(name) %> not found');
   }
 }
