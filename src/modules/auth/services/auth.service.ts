@@ -11,6 +11,7 @@ import { JwtService } from '@nestjs/jwt';
 import type { User } from 'src/modules/users/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { LoginResponseDto } from 'src/modules/auth/dto/responses/login.response.dto';
+import { RedisService } from 'src/database/redis/redis.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly redisService: RedisService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<User> {
@@ -89,5 +91,11 @@ export class AuthService {
 
     const payload = { email: user.email, sub: user.id };
     return new LoginResponseDto(this.jwtService.sign(payload));
+  }
+
+  async logout(token: string): Promise<{ message: string }> {
+    const ttlInSeconds = 86400; // Default 24h expiration
+    await this.redisService.blacklistToken(token, ttlInSeconds);
+    return { message: 'Successfully logged out' };
   }
 }

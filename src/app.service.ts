@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common';
-import configuration from 'src/config/configuration';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
-  welcome(): string {
-    const appName = configuration().app.name;
-    return `Welcome to ${appName}, for docs go to <a href="/api/v1/docs">/api/v1/docs</a>.`;
+  constructor(private readonly configService: ConfigService) {}
+
+  welcome() {
+    const appName = this.configService.get<string>(
+      'app.name',
+      'NestJS REST Starter',
+    );
+    const apiPrefix = this.configService.get<string>('apiPrefix', 'api');
+    return {
+      message: `Welcome to ${appName}`,
+      docs: `/${apiPrefix}/docs`,
+      health: `/${apiPrefix}/v1/health`,
+    };
   }
 }

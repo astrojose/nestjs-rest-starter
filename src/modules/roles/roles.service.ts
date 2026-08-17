@@ -6,12 +6,14 @@ import { Role } from 'src/modules/roles/entities/role.entity';
 import { RoleRepository } from 'src/modules/roles/repositories/role.repository';
 import { PermissionRepository } from 'src/modules/roles/repositories/permission.repository';
 import { RoleResponseDto } from 'src/modules/roles/dto/responses/role.response.dto';
+import { RedisService } from 'src/database/redis/redis.service';
 
 @Injectable()
 export class RolesService {
   constructor(
     private readonly roleRepository: RoleRepository,
     private readonly permissionRepository: PermissionRepository,
+    private readonly redisService: RedisService,
     private readonly logger: LoggerService,
   ) {}
 
@@ -25,7 +27,9 @@ export class RolesService {
       );
     }
 
-    return new RoleResponseDto(await this.roleRepository.save(role));
+    const savedRole = await this.roleRepository.save(role);
+    await this.syncRoleToRedis(savedRole);
+    return new RoleResponseDto(savedRole);
   }
 
   async findAll(): Promise<RoleResponseDto[]> {
@@ -62,8 +66,14 @@ export class RolesService {
       ...updateRoleDto,
       permissions,
     });
+    await this.syncRoleToRedis(role);
     this.logger.log(`Role updated with id: ${id}`);
     return new RoleResponseDto(role);
+  }
+
+  async syncRoleToRedis(role: Role): Promise<void> {
+    const permNames = role.permissions?.map(p => p.name) ?? [];
+    await this.redisService.setRolePermissions(role.name, permNames);
   }
 
   private async resolvePermissions(permissionNames: string[]) {

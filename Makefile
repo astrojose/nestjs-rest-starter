@@ -58,5 +58,5 @@ docker-build: ## Build and start all Docker services
 
 new-module: ## Scaffold a domain module — usage: make new-module name=product
 	@[ -n "$(name)" ] || (echo "Usage: make new-module name=<module-name>" && exit 1)
-	pnpm run build:schematics --silent
+	@pnpm run build:schematics > /dev/null 2>&1
 	nest g resource $(name) --collection ./schematics

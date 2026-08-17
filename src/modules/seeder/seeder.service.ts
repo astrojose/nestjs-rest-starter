@@ -5,6 +5,7 @@ import { LoggerService } from 'src/lib/logger/logger.service';
 import { RoleRepository } from 'src/modules/roles/repositories/role.repository';
 import { PermissionRepository } from 'src/modules/roles/repositories/permission.repository';
 import { UserRepository } from 'src/modules/users/repositories/user.repository';
+import { RedisService } from 'src/database/redis/redis.service';
 
 @Injectable()
 export class SeederService {
@@ -12,11 +13,13 @@ export class SeederService {
     private readonly roleRepository: RoleRepository,
     private readonly permissionRepository: PermissionRepository,
     private readonly userRepository: UserRepository,
+    private readonly redisService: RedisService,
     private readonly logger: LoggerService,
   ) {}
 
   async seed() {
     await Promise.all([this.#createRoles(), this.#createUsers()]);
+    await this.#syncRolesToRedis();
   }
 
   async #createRoles() {
@@ -56,6 +59,18 @@ export class SeederService {
         }
       }),
     );
+  }
+
+  async #syncRolesToRedis() {
+    this.logger.log('Syncing roles and permissions to Redis cache...');
+    const roles = await this.roleRepository.findAll({
+      relations: ['permissions'],
+    });
+
+    for (const role of roles) {
+      const permNames = role.permissions?.map(p => p.name) ?? [];
+      await this.redisService.setRolePermissions(role.name, permNames);
+    }
   }
 
   async #createUsers() {

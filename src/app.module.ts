@@ -3,12 +3,14 @@ import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from 'src/database/database.module';
+import { RedisModule } from 'src/database/redis/redis.module';
 import { AppConfigModule } from 'src/config/app-config.module';
 import { UsersModule } from './modules/users/users.module';
 import { RolesModule } from './modules/roles/roles.module';
 import { SeederModule } from './modules/seeder/seeder.module';
 import { LoggerModule } from 'src/lib/logger/logger.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { HealthModule } from './modules/health/health.module';
 import { ResponseTransformInterceptor } from 'src/common/interceptors/response.interceptor';
 import { LoggingInterceptor } from 'src/common/interceptors/logging.interceptor';
 import { GlobalValidationPipe } from 'src/common/pipes/global-validation.pipe';
@@ -18,6 +20,8 @@ import { HttpExceptionFilter } from 'src/common/filters/http-exception.filter';
   imports: [
     AppConfigModule,
     DatabaseModule,
+    RedisModule,
+    HealthModule,
     UsersModule,
     RolesModule,
     SeederModule,
