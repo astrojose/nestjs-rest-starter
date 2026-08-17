@@ -17,7 +17,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 
 # Install dependencies
-RUN HUSKY=0 pnpm install --frozen-lockfile
+RUN HUSKY=0 pnpm install --frozen-lockfile --ignore-scripts
 
 # Copy source code
 COPY . .

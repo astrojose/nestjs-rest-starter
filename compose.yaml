@@ -26,8 +26,13 @@ services:
       DB_USERNAME: postgres
       DB_PASSWORD: postgres
       DB_DATABASE: db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_ENABLED: "true"
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     ports:
       - "3000:3000"
@@ -51,9 +56,26 @@ services:
       retries: 5
       start_period: 10s
 
+  redis:
+    container_name: nestjs-rest-starter-redis
+    <<: *common-service
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
 volumes:
   postgres_data:
     name: nestjs-rest-starter-postgres-data
+  redis_data:
+    name: nestjs-rest-starter-redis-data
 
 networks:
   app-network:
