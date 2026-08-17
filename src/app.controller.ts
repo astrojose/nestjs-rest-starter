@@ -1,7 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Public } from 'src/common/decorators';
 import { AppService } from './app.service';
-import { ApiTags } from '@nestjs/swagger';
-import { Public } from 'src/modules/auth/decorator/public.decorator';
 
 @ApiTags('Welcome')
 @Controller()
@@ -10,7 +10,8 @@ export class AppController {
 
   @Public()
   @Get()
-  welcome(): string {
+  @ApiOperation({ summary: 'API welcome information' })
+  welcome() {
     return this.appService.welcome();
   }
 }

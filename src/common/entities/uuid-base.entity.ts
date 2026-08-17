@@ -6,9 +6,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export abstract class BasicEntity {
-  @PrimaryGeneratedColumn('increment')
-  id: number;
+export abstract class UuidBasicEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @CreateDateColumn({
     type: 'timestamptz',
@@ -31,11 +31,11 @@ export abstract class BasicEntity {
   })
   deletedAt?: Date | null;
 
-  @Column({ type: 'int', nullable: true, name: 'created_by' })
-  createdBy?: number | null;
+  @Column({ type: 'uuid', nullable: true, name: 'created_by' })
+  createdBy?: string | null;
 
-  @Column({ type: 'int', nullable: true, name: 'updated_by' })
-  updatedBy?: number | null;
+  @Column({ type: 'uuid', nullable: true, name: 'updated_by' })
+  updatedBy?: string | null;
 
   mergeData<T>(data: T): this & T {
     return Object.assign(this as any, data);
